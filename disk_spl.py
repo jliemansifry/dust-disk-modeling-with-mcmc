@@ -264,7 +264,7 @@ class Disk:
                                                  )[0]
         nu = self.c_const/lamma # scale by nu
         Q2 = self.qFunction2(lamma)
-        flux2 = Q2*nu*2*math.pi*fluxIntegral2*1e26*(self.grainSize2**2)/(self.starDistance**2)
+        flux2 = Q2*nu*2*math.pi*fluxIntegral2*1e26*(self.grainSize**2)/(self.starDistance**2)
         return flux2
 
     def calculateGrainDistribution(self, radius):
