@@ -1,0 +1,31 @@
+SORTORD = 'TB      '
+SPECSYS = 'TOPOCENT'
+AIPS WTSCAL = 1.0
+FITS: Miriad fits: CVS Revision 1.24, 2013/03/14 17:33:00 UTC
+FITS: Executed on: 2015-09-09T20:48:49.0
+FITS: Command line inputs follow:
+FITS:   in=HIP79516spw1.uvf
+FITS:   op=uvin
+FITS:   out=HIP79516spw1.vis
+INVERT: Miriad invert: CVS Revision 1.12, 2012/05/25 12:53:15 UT
+INVERT: Executed on: 2015-09-09T20:48:49.0
+INVERT: Command line inputs follow:
+INVERT:   vis=HIP79516spw1.vis,HIP79516spw2.vis,HIP79516spw3.vis
+INVERT:   map=HIP79516spw123.mp
+INVERT:   beam=HIP79516spw123.bm
+INVERT:   imsize=1024
+INVERT:   cell=.00625
+INVERT:   options=mfs
+INVERT:   robust=.5
+CLEAN: Miriad clean: CVS Revision 1.7, 2012/06/04 21:20:55 UTC
+CLEAN: Executed on: 2015-09-09T20:48:51.0
+CLEAN: Command line inputs follow:
+CLEAN:   map=HIP79516spw123.mp
+CLEAN:   beam=HIP79516spw123.bm
+CLEAN:   out=HIP79516spw123.cl
+CLEAN:   niters=100000
+CLEAN:   cutoff=.00005
+CLEAN: Bounding region is Blc = (256,256,1), Trc = (767,767,1)
+CLEAN: Steer Clip Level =  1.000
+CLEAN: Minpatch = 51
+CLEAN: Total Iterations = 137

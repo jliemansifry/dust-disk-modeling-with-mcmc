@@ -1,0 +1,19 @@
+SORTORD = 'TB      '
+SPECSYS = 'TOPOCENT'
+AIPS WTSCAL = 1.0
+FITS: Miriad fits: CVS Revision 1.24, 2013/03/14 17:33:00 UTC
+FITS: Executed on: 2015-09-09T20:48:49.0
+FITS: Command line inputs follow:
+FITS:   in=HIP79516spw1.uvf
+FITS:   op=uvin
+FITS:   out=HIP79516spw1.vis
+INVERT: Miriad invert: CVS Revision 1.12, 2012/05/25 12:53:15 UT
+INVERT: Executed on: 2015-09-09T20:48:49.0
+INVERT: Command line inputs follow:
+INVERT:   vis=HIP79516spw1.vis,HIP79516spw2.vis,HIP79516spw3.vis
+INVERT:   map=HIP79516spw123.mp
+INVERT:   beam=HIP79516spw123.bm
+INVERT:   imsize=1024
+INVERT:   cell=.00625
+INVERT:   options=mfs
+INVERT:   robust=.5
