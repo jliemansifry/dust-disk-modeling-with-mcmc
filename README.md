@@ -72,8 +72,8 @@ In this example, the 5 parameters being varied are:
 In the log likelihood function, these values are called by the Disk instance on line 28 and VisibilityGenerator instance on line 30. The 0.0001 refers to the inner edge of an inner belt that we may or may not need yet, with the 0 being its corresponding mass. 0.8 is the long wavelength power law index of grain emission efficiency (beta), and 1 is the power law (p) slope of the surface density (decreasing). If your data are good enough to warrant varing beta and p, your calls on lines 28 and 30 would look something like:
 
 ```python
-disk = Disk(0.0001,p[0],p[1],10**p[2], 0, p[3], blowoutSize*1e6, p[4])
-visGen = VisibilityGenerator(1024,p[5],p[6],fits_file) # renumbering which values correspond to inc and PA because it makes sense to keep them at the end
+disk = Disk(0.0001, p[0], p[1], 10**p[2], 0, p[3], blowoutSize*1e6, p[4])
+visGen = VisibilityGenerator(1024, p[5], p[6], fits_file) # renumbering which values correspond to inc and PA because it makes sense to keep them at the end
 ```
 
 If you add parameters, make sure you edit lines 50 and 51, adjust the boundaries for the walkers on line 22, and set start positions/widths on lines 16 and 17. I recommend starting the first MCMC run really wide, then narrowing in after you've got an idea where the best fit is. Set the number of walkers/steps on line 18. Start small(ish)... however, you'll want enough walkers that they'll converge quickly and enough steps that the run will burn in. I can't provide exacts here-- you'll want to play around with this based on how much time you've got/how many cores you can run your code on. Speaking of running the code...
