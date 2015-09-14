@@ -16,7 +16,7 @@ def define_start_and_run(): #called at the bottom
     pC = np.array([60, 50, -2]) # center positions for the gaussian ball for each parameter to be varied
     pW = np.array([10, 30, 0.5]) # gaussian widths for each parameter
     diskName= 'HIP79516'
-    run_pool((pC),(pW),2,4)
+    run_pool((pC),(pW),20,300)
 
 def lnlike_vis_and_sed(p):
     if p[0] < .0001 or p[0] > 500. or p[1] < 0.11: # set up some boundaries for naughty parameters that like to break stuff

@@ -13,7 +13,5 @@ def makeImage(disk):
 	os.system('restor map='+disk+'spw123.mp beam='+disk+'spw123.bm model='+disk+'spw123.cl out='+disk+'spw123.cm')
 	os.system('cgdisp in='+disk+'spw123.cm,'+disk+'spw123.cm type=pix,con slev=a,4.5e-5 levs1=-3,3,6,9,12,15,18 labtyp=arcsec device=/xs beamtyp=b,l,4')
 	os.system('imstat in='+disk+'spw123.cm region=box'+r"'(100,100,300,900)'")
-	#print 'imstat in='+disk+'spw123.cm region=box(100,100,300,900)'
-	#print noiseBox
 
 makeImage(diskName)

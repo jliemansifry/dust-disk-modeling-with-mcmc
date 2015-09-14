@@ -13,12 +13,12 @@ import sys
 blowoutSize = (3 * 4.04  * 3.8e26)/ (16 * 3.14159 * 2.7 * 6.67e-11 * 1.4 *1.988e33 * 2.9979e8)# 3 * stellar luminosity in solar luminosities * convert to watts / 16 pi * rho * G * mstar in stellar masses * convert to kg * c (in meters)
 
 def define_start_and_run(): #called at the bottom
-    pC = np.array([60, 50, -2, 50, 10]) # center positions for the gaussian ball for each parameter to be varied
-    pW = np.array([10, 30, 0.5, 5, 5]) # gaussian widths for each parameter
-    run_pool((pC),(pW),2,10) #20 walkers, 100 steps
+    pC = np.array([60, 50, -2, 0, 0]) # center positions for the gaussian ball for each parameter to be varied
+    pW = np.array([20, 30, 0.5, 30, 30]) # gaussian widths for each parameter
+    run_pool((pC),(pW),2,6) #20 walkers, 300 steps
 
 def lnlike_visonly(p):
-    if p[0] < 0.0001 or p[1] < 0.11 or p[3] > 90 or p[3] < 0 or p[4] < -90 or p[4] > 90: # set up boundaries for naughty parameters
+    if p[0] < 0.0001 or p[1] <= 0.10 or p[3] > 90 or p[3] < 0 or p[4] < -90 or p[4] > 90: # set up boundaries for naughty parameters. rIn can't be negative, delR can't be below 0.1 because that is the resolution of the model, inc can't be negative or greater than 90, and PA is the same after a 180deg rotation, so we limit it to -90<PA<90
         return -np.inf
     else:
         import tempfile

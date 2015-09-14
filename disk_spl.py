@@ -410,8 +410,8 @@ class Disk:
         plt.xlim(5e-2,3e3)
         plt.ylim(1e-7,2e2)
         pylab.gcf().subplots_adjust(left=0.12, bottom=0.15)
-        plt.savefig(diskName+'_'+whatbywhat+'_'+append+'_SED.png',dpi=400)
-        #plt.show()
+        plt.savefig('MCMCRUNS/'+append+'/'+whatbywhat+'/'+diskName+'_'+whatbywhat+'_'+append+'_SED.png',dpi=400)
+        plt.show()
 
     
     def computeChiSquared(self):
