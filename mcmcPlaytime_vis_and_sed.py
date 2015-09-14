@@ -21,9 +21,9 @@ noise = raw_input('RMS noise (in microJy)? ') #'HIP79516'  ##raw_input('What dis
 chainDat = fits.getdata('MCMCRUNS/vis_and_sed/'+whatbywhat+'/'+whatbywhat+'.chain.fits')
 chiDat = fits.getdata('MCMCRUNS/vis_and_sed/'+whatbywhat+'/'+whatbywhat+'.chi.fits')
 
-ndim = 3 # change if the number of variable parameters changes
+ndim = 4 # change if the number of variable parameters changes
 
-blowoutSize = (3 * 2.89  * 3.8e26)/ (16 * 3.14159 * 2.7 * 6.67e-11 * 1. *1.988e33 * 2.9979e8)# <<blowout size
+blowoutSize = (3 * 4.04  * 3.8e26)/ (16 * 3.14159 * 2.7 * 6.67e-11 * 1.4 *1.988e33 * 2.9979e8)# <<blowout size
 
 def find_best_fit():
     print '\nMin chi: '+str(np.min(chiDat))
@@ -31,8 +31,8 @@ def find_best_fit():
     global best_disk, vis_bestfit, diskBestFit
     print np.array(np.where(chiDat == np.min(chiDat))) #helpful to see where in the chain the min chi was
     best_disk = chainDat[bestFit[0],bestFit[len(bestFit)/2]] # picks a step where walker was at min chi
-    vis_bestfit = np.ravel([45, 45]) # set inc amd PA
-    diskBestFit = Disk(0.0001,best_disk[0],best_disk[1],10**best_disk[2],0, 0.8, blowoutSize * 1e6,1)
+    vis_bestfit = np.ravel([53, 22]) # set inc and PA
+    diskBestFit = Disk(best_disk[0],53,74,10**best_disk[1],10**best_disk[2], 0.8, 10**best_disk[3],1)
 
 def vis_gen(visVal,disk,fileappend):
     print 'Generating visibilities...'
@@ -88,7 +88,7 @@ def triangle_gen():
     plot_chi()
     burnIn = input('Burn off how many steps? ')
     samples = chainDat[:,burnIn:,:].reshape((-1,ndim))
-    triangle.corner(samples, labels=['$R_{In}$ [AU]','$\Delta$R [AU]','log($M_{D}$ [$M_{Earth}$])'], truths=[best_disk[0],best_disk[1],best_disk[2]], truth_color='g', quantiles=[0.16,.5,.84], show_titles=True, plot_contours=True)
+    triangle.corner(samples, labels=['$R_{In, Inner Belt}$ [AU]','log($M_{D}$ [$M_{Earth}$])','log($M_{B}$ [$M_{Earth}$])','log(a [microns])'], truths=[best_disk[0],best_disk[1],best_disk[2],best_disk[3]], truth_color='g', quantiles=[0.16,.5,.84], show_titles=True, plot_contours=True)
     plt.savefig(diskName+'_'+whatbywhat+'_'+append+'_Triangle.png')
     plt.show()
     
@@ -108,11 +108,10 @@ def triangle_gen():
         values_68[i,1] = quantiles[1]
 
     #now gen table
-    a = r'$R_{In}$  [AU] &'+' {0:.2f}$^{{{1:+.2f}}}_{{{2:+.2f}}}$ & {3:.2f} \\'.format(values[0,0],values[0,1],values[0,2],best_disk[0])
-    b = r'$\Delta R$ [AU] &'+' {0:.2f}$^{{{1:+.2f}}}_{{{2:+.2f}}}$ & {3:.2f} \\'.format(values[1,0],values[1,1],values[1,2],best_disk[1])
-    c = r'log($M_{Disk}$ [$M_{Earth}$]) &'+' {0:.2f}$^{{{1:+.2f}}}_{{{2:+.2f}}}$ & {3:.2f} \\'.format(values[2,0],values[2,1],values[2,2],best_disk[2])
-    #d = r'$i$ [$^\circ$] &'+' {0:.2f}$^{{{1:+.2f}}}_{{{2:+.2f}}}$ & {3:.2f} \\'.format(values[3,0],values[3,1],values[3,2],best_disk[3])
-    #e = r'$PA$ [$^\circ$] &'+' {0:.2f}$^{{{1:+.2f}}}_{{{2:+.2f}}}$ & {3:.2f} \\'.format(values[4,0],values[4,1],values[4,2],best_disk[4])
+    a = r'$R_{In, Inner Belt}$  [AU] &'+' {0:.2f}$^{{{1:+.2f}}}_{{{2:+.2f}}}$ & {3:.2f} \\'.format(values[0,0],values[0,1],values[0,2],best_disk[0])
+    b = r'log($M_{Disk}$ [$M_{Earth}$])&'+' {0:.2f}$^{{{1:+.2f}}}_{{{2:+.2f}}}$ & {3:.2f} \\'.format(values[1,0],values[1,1],values[1,2],best_disk[1])
+    c = r'log($M_{Belt}$ [$M_{Earth}$]) &'+' {0:.2f}$^{{{1:+.2f}}}_{{{2:+.2f}}}$ & {3:.2f} \\'.format(values[2,0],values[2,1],values[2,2],best_disk[2])
+    d = r'log(a [microns]) &'+' {0:.2f}$^{{{1:+.2f}}}_{{{2:+.2f}}}$ & {3:.2f} \\'.format(values[3,0],values[3,1],values[3,2],best_disk[3])
     
 
     table_text = open(diskName+'_'+whatbywhat+'_'+append+'_Table.txt','w')    
@@ -120,7 +119,7 @@ def triangle_gen():
     table_text.write(a+'\n')
     table_text.write(b+'\n')
     table_text.write(c+'\n')
-    #table_text.write(d+'\n')
+    table_text.write(d+'\n')
     #table_text.write(e+'\n\n')
     table_text.write('One sigma values for single tailed distributions with only an upper or lower constraint. See triangle plot. \n 0.32 & 0.68 \n')
     for num in range(len(values_68)):

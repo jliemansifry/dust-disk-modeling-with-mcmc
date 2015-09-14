@@ -13,22 +13,22 @@ import sys
 blowoutSize = (3 * 4.04  * 3.8e26)/ (16 * 3.14159 * 2.7 * 6.67e-11 * 1.4 *1.988e33 * 2.9979e8) # 3 * stellar luminosity in solar luminosities * convert to watts / 16 pi * rho * G * mstar in stellar masses * convert to kg * c
 
 def define_start_and_run(): #called at the bottom
-    pC = np.array([60, 50, -2]) # center positions for the gaussian ball for each parameter to be varied
-    pW = np.array([10, 30, 0.5]) # gaussian widths for each parameter
+    pC = np.array([3, -1.6, -1.6, .3]) # center positions for the gaussian ball for each parameter to be varied
+    pW = np.array([1, 0.2, 0.2, 0.2]) # gaussian widths for each parameter
     diskName= 'HIP79516'
     run_pool((pC),(pW),20,300)
 
 def lnlike_vis_and_sed(p):
-    if p[0] < .0001 or p[0] > 500. or p[1] < 0.11: # set up some boundaries for naughty parameters that like to break stuff
+    if p[0] < .0001 or p[0] > 500. or 10**p[3] < 0.1 or 10**p[3] > 3000: # set up some boundaries for naughty parameters that like to break stuff
         return -np.inf
     else:
         import tempfile
         tf = tempfile.NamedTemporaryFile(delete=False)
         fits_file = 'fitsFile'+tf.name[-9:]
         
-        disk = Disk(0.001,p[0],p[1],10**p[2], 0, 0.8, blowoutSize*1e6,1)
+        disk = Disk(p[0], 53, 74, 10**p[1], 10**p[2], 0.8, 10**p[3], 1)
         rawDiskChi = disk.computeChiSquared()
-        visGen = VisibilityGenerator(1024, 45, 45, fits_file) #set inc and PA
+        visGen = VisibilityGenerator(1024, 53, 22, fits_file) #set inc and PA
         rawVisChi = visGen.computeChiSquared(disk)
         os.system('rm -rf images/'+fits_file+'.fits')
         os.system('rm -rf images/'+fits_file+'.mp')
@@ -48,8 +48,8 @@ def run_pool(pC, pW, walk, step): #pCenter and pWidths
     nwalkers = walk 
     ndim = len(pC)
     ## r in, del r, i, PA
-    p0 = [pC[0], pC[1], pC[2]]
-    widths = [pW[0], pW[1], pW[2]]
+    p0 = [pC[0], pC[1], pC[2], pC[3]]
+    widths = [pW[0], pW[1], pW[2], pW[3]]
     p = emcee.utils.sample_ball(p0,widths,size=nwalkers)
     
     pool = MPIPool()
