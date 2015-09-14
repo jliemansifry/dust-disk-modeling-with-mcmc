@@ -25,7 +25,7 @@ The final MIRIAD command called by imageMaker.py calls imstat on a region of the
 cgdisp in=DISKNAMEspw123.cm,DISKNAMEspw123.cm type=pix,con slev=a,NOISEe-6 levs1=-3,3,6,9,12,15,18 labtyp=arcsec device=/xs beamtyp=b,l,4
 ```
 
-#### Prepping Your Data/ Gathering Stellar Info
+#### Prepping Your Data/ Gathering Stellar Info/ Necessary Code Edits for Your Disk
 
 ##### Stellar Parameters
 
@@ -46,6 +46,13 @@ Go to [this Kurucz-Lejeune stellar photosphere model catalog](http://vizier.cfa.
 If you've got an IRS spectrum, make sure it's in three columns in a text file (wavelength of obs, flux, and error), and use it as input for avgIRS.py (line 14). The spectrum is generally ~360 points. This file averages them to 9 for sake of computational efficiency when fitting the SED (the main use of processing power when making models) and adds a 10% systematic flux uncertainty. Set the final range in "ranges" on line 34 to correspond to the last data point in the IRS spectrum. See the length of the text file to deduce what number point this is. avgIRS.py will spit out a text file of the averaged points (named on line 52) and save a plot (line 62) that confirms that the data were averaged appropriately. [Here](https://github.com/jliemansifry/DustDiskModeling/blob/master/HIP79516_IRS_spectrum_avg.png) is the example for HIP79516's IRS spectrum.
 
 Gather your photometry from the literature. Insert the IRS points into this file by hand ordered by wavelength. If there is a reddening factor, you should correct for this so that your photometry will happily agree with your model photosphere. Open up ISM_extinction.py, set your aV (line 6), input and output filenames (lines 11 and 18), and run it! Make sure that you've already added any systematic errors before doing this. 
+
+##### Necessary visgen_master.py Edits
+Make sure that lines 36-41 call your .uvf and .vis files for your three spectral windows. If you've successfully concatenated your data into one .uvf files because that CASA bug has been fixed, feel free to swing the code-deleting-machete around this file everywhere anything2 or anything3 is mentioned. 
+
+The data used in Lieman-Sifry et al. (which this code was edited for) were taken at 1240 microns, i.e. around the J=2-1 transition of CO at 230.538 GHz. If your data were taken at a different frequency, make sure you edit line 158 to reflect this difference. 
+
+CRVAL1 and CRVAL2 on lines 185 and 189 must be changed to the RA/DEC of your target at the time of observation. Did you correct for proper motion when you submitted your proposal? Probably worth checking. Fear not, however, as you can correct for PM here. If you don't, your models will likely end up with the telltale +/- residuals on opposite sides of the center in the residual image. 
 
 ## MCMC Modeling
 
@@ -69,11 +76,13 @@ In this example, the 5 parameters being varied are:
   4. Inclination (*i*)
   5. Position angle (*PA*)
 
-In the log likelihood function, these values are called by the Disk instance on line 28 and VisibilityGenerator instance on line 30. The 0.0001 refers to the inner edge of an inner belt that we may or may not need yet, with the 0 being its corresponding mass. 0.8 is the long wavelength power law index of grain emission efficiency (beta), and 1 is the power law (p) slope of the surface density (decreasing). If your data are good enough to warrant varing beta and p, your calls on lines 28 and 30 would look something like:
+In the log likelihood function, these values are called by the Disk instance on line 28 and VisibilityGenerator instance on line 30. The 0.0001 refers to the inner edge of an inner belt that we may or may not need yet, with the 0 being its corresponding mass. 0.8 is the long wavelength power law index of grain emission efficiency (beta), and 1 is the power law (p) slope of the surface density (decreasing). 
+
+If you resolve multiple beams across the disk, you'll probably want to vary p. Your calls on lines 28 and 30 would look something like:
 
 ```python
-disk = Disk(0.0001, p[0], p[1], 10**p[2], 0, p[3], blowoutSize*1e6, p[4])
-visGen = VisibilityGenerator(1024, p[5], p[6], fits_file) # renumbering which values correspond to inc and PA because it makes sense to keep them at the end
+disk = Disk(0.0001, p[0], p[1], 10**p[2], 0, 0.8, blowoutSize*1e6, p[3])
+visGen = VisibilityGenerator(1024, p[4], p[5], fits_file) # renumbering which values correspond to inc and PA because it makes sense to keep them at the end
 ```
 
 If you add parameters, make sure you edit lines 50 and 51, adjust the boundaries for the walkers on line 22, and set start positions/widths on lines 16 and 17. I recommend starting the first MCMC run really wide, then narrowing in after you've got an idea where the best fit is. Set the number of walkers/steps on line 18. Start small(ish)... however, you'll want enough walkers that they'll converge quickly and enough steps that the run will burn in. I can't provide exacts here-- you'll want to play around with this based on how much time you've got/how many cores you can run your code on. To run the code, run this on the command line (with NUMBEROFCORES = anything greater than 1). 
@@ -102,14 +111,17 @@ Finally, we get to make a triangle plot with emcee's awesome [triangle](https://
 A "table" of median values plus/minus one sigma error bars will be saved, along with everything else, in the MCMCRUNS/vis_only/NUMWALKERSxNUMSTEPS/ directory. I say "table" because really it's only half a table, and you'll need to provide the rest of the formatting when you copy it into latex. It should save you some time though. Don't forget to deal with sigfigs! One sigma upper and lower limits are also provided in case the distribution is one tailed. See the triangle plot to dechiper whether or not this is the case. When you get to the point of wanting to report values from your MCMC runs, a good rule of thumb is that you want the number of steps you're formulating the triangle plot/tables off of (ie. NUMSTEPS - burn-in) to be ~10x the autocorrelation time for the reported uncertainties to be robust. Side-note: autocorrelation time goes down as you increase the number of walkers, but you could also just do more steps for a given number of walkers. Either will work. Once you've got a visibility-only fit you're happy with, we can move on to simultaneous visibility and SED fitting. 
 
 #### Simultaneous SED and Visibility Fitting
+
 Modeling the SED probes the temperature of the emitting grains. Because grain size and grain location are degenerate from a modeling point of view in creating grains of a given temperature, we opted to set the geometry of the disk from the visbility-only fits in all cases before fitting to the SED (lines 28 and 30 in doModel_vis_and_sed.py). There are subtleties in this process that I won't dig into here... see Lieman-Sifry et al. for details. It was especially important in our case because of the low SNR of our data, as the SED would otherwise dominate the fit. However, you may not need to do this. HIP79516, the example in this repo, required an inner belt. As our visibilities resolved an inner edge to the disk, we ascertained that there must be a warm inner belt due to the lack of flux in the mid-IR. We are unable to constrain the geometry of this belt, however, so we describe it to be 10AU wide (~10% the resolution of our data, line 45 in disk_spl.py), then let the inner edge of this belt vary, along with it's mass, the main disk's mass, and the grain size. 
 
-Your disk and data will be different, and may require a slightly different modeling strategy! However, the actual nuts and bolts of running the code are basically the same. Make sure the parameters you set/vary in doModel_vis_and_sed.py are also the same in mcmcPlaytime_vis_and_sed.py. 
+Your disk and data will be different, and may require a slightly different modeling strategy! However, the actual nuts and bolts of running the code are basically the same. If you have multiple long wavelength (> 100 microns) data points, you're probably justified in varying beta. Make sure the parameters you set/vary in doModel_vis_and_sed.py are also the same in mcmcPlaytime_vis_and_sed.py. 
 
 #### Running This Code on (Wesleyan's) Cluster
+
 Coming soon! There are slight variations necessary in visgen_master.py to make MIRIAD not complain due to install differences on the local Wesleyan Astro machines vs. Wesleyan's cluster. I'd like to track down what the differences are in the install on each so that I can communicate to anyone using this repo what's necessary depending on your MIRIAD build. 
 
 ## Author's Note
-Think carefully about what your data are telling you throughout this process! Just because you got an AWESOME fit doesn't necessarily mean you appropriately thought through how you varied your parameters, that you weren't overfitting, that your conclusions will be robust, etc. Take it from me... I went on quite a wondering path in modeling these disks before I got it right :) 
+
+Think carefully about what your data are telling you throughout this process! Just because you got an AWESOME fit doesn't necessarily mean you appropriately thought through how you varied your parameters, that you weren't overfitting, that your conclusions will be robust, etc. Take it from me... I went on quite a wondering path in modeling the disks in my paper before I got it right :) 
 
 Feel free to contact me if you'd like my two cents!
