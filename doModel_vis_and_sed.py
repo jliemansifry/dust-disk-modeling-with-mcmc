@@ -24,8 +24,7 @@ def lnlike_vis_and_sed(p):
     else:
         import tempfile
         tf = tempfile.NamedTemporaryFile(delete=False)
-        fits_file = 'fitsFile'+tf.name[-9:]
-        
+        fits_file = 'fitsFile'+tf.name[-9:] 
         disk = Disk(p[0], 53, 74, 10**p[1], 10**p[2], 0.8, 10**p[3], 1)
         rawDiskChi = disk.computeChiSquared()
         visGen = VisibilityGenerator(1024, 53, 22, fits_file) #set inc and PA
