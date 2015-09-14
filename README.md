@@ -107,7 +107,7 @@ Modeling the SED probes the temperature of the emitting grains. Because grain si
 Your disk and data will be different, and may require a slightly different modeling strategy! However, the actual nuts and bolts of running the code are basically the same. Make sure the parameters you set/vary in doModel_vis_and_sed.py are also the same in mcmcPlaytime_vis_and_sed.py. 
 
 #### Running This Code on (Wesleyan's) Cluster
-Coming soon! There are slight variations necessary in visgen_master.py to make MIRIAD not complain due to install differences on the local Wesleyan Astro machines vs. Wesleyan's cluster, but I'd like to track down what the differences are in the install on each so that people who aren't at Wesleyan will successfully be able to use this code. 
+Coming soon! There are slight variations necessary in visgen_master.py to make MIRIAD not complain due to install differences on the local Wesleyan Astro machines vs. Wesleyan's cluster. I'd like to track down what the differences are in the install on each so that I can communicate to anyone using this repo what's necessary depending on your MIRIAD build. 
 
 ## Author's Note
 Think carefully about what your data are telling you throughout this process! Just because you got an AWESOME fit doesn't necessarily mean you appropriately thought through how you varied your parameters, that you weren't overfitting, that your conclusions will be robust, etc. Take it from me... I went on quite a wondering path in modeling these disks before I got it right :) 
