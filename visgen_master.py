@@ -155,7 +155,7 @@ class VisibilityGenerator:
                 
                 radius = math.sqrt(x**2+y**2)
                 # have flux in Jy/m^2, now need in Jy/pixel
-                flux = (disk.calculatePointFlux(radius, 230.538)+disk.calculatePointFlux2(radius, 230.538))/math.cos(self.incline)*((pxwid*1.496e11)**2)
+                flux = (disk.calculatePointFlux(radius, 230.538)+disk.calculatePointFlux2(radius, 230.538))/math.cos(self.incline)*((pxwid*1.496e11)**2) #make sure the frequency here is that of your data
                 if flux:
                     # only assign if the flux is NOT 0
                     image[j][i] = flux
@@ -173,7 +173,7 @@ class VisibilityGenerator:
         hdu = fits.PrimaryHDU(image)
         head = hdu.header
         
-        head.update('OBJECT', 'HD_114082')
+        head.update('OBJECT', 'HIP_79516')
         head.update('SIMPLE', 'T')
         head.update('NAXIS', 4)
         head.update('NAXIS1', self.width)
@@ -182,7 +182,7 @@ class VisibilityGenerator:
         head.update('NAXIS4', 1)
         head.update('CDELT1', -1.0*pix_parsec)
         head.update('CRPIX1', center+0.5)
-        head.update('CRVAL1', (16.0 + 13/60.0 + 34.306189/3600.0)*15)
+        head.update('CRVAL1', (16.0 + 13/60.0 + 34.306189/3600.0)*15) # corrected for proper motion... even if you didn't correct for PM in your observation you can here!
         head.update('CTYPE1', 'RA---SIN')
         head.update('CDELT2', pix_parsec)
         head.update('CRPIX2', center+0.5)
